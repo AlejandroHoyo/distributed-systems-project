@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "icedrive-authentication"
 version = "0.0.1"
 authors = [
-  { name="Put Your name Here", email="youremailaddress@uclm.es" },
+  { name="Alejandro del Hoyo Abad", email="alejandro.hoyo@alu.uclm.es" },
 ]
 description = "Implementation of IceDrive Authentication service"
 readme = "README.md"
@@ -26,7 +26,7 @@ tests = ["pytest"]
 linters = ["black", "ruff", "pydocstyle"]
 
 [project.urls]
-"Homepage" = "https://github.com/YOURUSERNAME/YOURREPOSITORY"
+"Homepage" = "https://github.com/AlejandroHoyo/distributed-systems-project.git"
 
 [project.scripts]
 icedrive-authentication = "icedrive_authentication.app:main"
