@@ -17,7 +17,7 @@ class AuthenticationApp(Ice.Application):
         adapter = self.communicator().createObjectAdapter("AuthenticationAdapter")
         adapter.activate()
 
-        servant = Authentication()
+        servant = Authentication("users.db")
         servant_proxy = adapter.addWithUUID(servant)
 
         logging.info("Proxy: %s", servant_proxy)
@@ -26,7 +26,6 @@ class AuthenticationApp(Ice.Application):
         self.communicator().waitForShutdown()
 
         return 0
-
 
 def main():
     """Handle the icedrive-authentication program."""
