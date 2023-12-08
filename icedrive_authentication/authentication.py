@@ -93,9 +93,9 @@ class Authentication(IceDrive.Authentication):
     def verifyUser(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> bool:
         """Check if the user belongs to this service.
         Don't check anything related to its authentication state or anything else.
-        """
-        adapter = current.adapter if current else None
-        if adapter is None:
-            return False
+        #"""
+        # adapter = current.adapter if current else None
+        # if adapter is None:
+        #     return False
         user_object = current.adapter.find(user.ice_getIdentity())
         return user_object is not None
