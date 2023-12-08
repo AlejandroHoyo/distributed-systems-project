@@ -5,18 +5,15 @@ import time
 import Ice
 import IceDrive
 
-
 from .query_executor import QueryExecutor 
 
-TWO_MINUTES = 15
+TWO_MINUTES = 2 * 60
 
 class User(IceDrive.User):
     """Implementation of an IceDrive.User interface."""
     def __init__(self, username: str) -> None:
         self.username = username
-        self.enable = True
         self.creation_timestamp = time.monotonic()
-        #self.last_refresh_timestamp = self.creation_timestamp  # Initialize last refresh time
 
     def getUsername(self, current: Ice.Current = None) -> str:
         """Return the username for the User object."""
@@ -25,17 +22,14 @@ class User(IceDrive.User):
     def isAlive(self, current: Ice.Current = None) -> bool:
         """Check if the authentication is still valid or not."""
         
-        return time.monotonic() - self.creation_timestamp <= TWO_MINUTES and self.enable
+        return time.monotonic() - self.creation_timestamp <= TWO_MINUTES 
 
     def refresh(self, current: Ice.Current = None) -> None:
         """Renew the authentication for 1 more period of time."""
-        if not self.enable: 
-            raise IceDrive.UserNotExist(self.username)
         if not self.isAlive():
             raise IceDrive.Unauthorized(self.username)
         
         self.creation_timestamp = time.monotonic()
-        #self.last_refresh_timestamp = self.creation_timestamp  # Update last refresh time
 
 
 class Authentication(IceDrive.Authentication):
@@ -57,10 +51,13 @@ class Authentication(IceDrive.Authentication):
         
         user_obj = User(username)
         user_prx = IceDrive.UserPrx.uncheckedCast(current.adapter.addWithUUID(user_obj))
+
+        user_identity = user_prx.ice_getIdentity()
+
         if username in self.users: 
-            self.users[username].append(user_obj)
+            self.users[username].append(user_identity)
         else: 
-            self.users[username] = [user_obj]
+            self.users[username] = [user_identity]
 
         #print("id", ",".join([str(id(user)) for user in self.users[username]]))
         return user_prx
@@ -75,8 +72,9 @@ class Authentication(IceDrive.Authentication):
         
         user_obj = User(username)
         user_prx = IceDrive.UserPrx.uncheckedCast(current.adapter.addWithUUID(user_obj))
+        user_identity = user_prx.ice_getIdentity()
 
-        self.users[username] = [user_obj]
+        self.users[username] = [user_identity]
         return user_prx
 
     def removeUser(
@@ -86,10 +84,11 @@ class Authentication(IceDrive.Authentication):
         success = self.query_executor.remove_user(username, password)
         if not success: 
             raise IceDrive.Unauthorized(username)
-        for users in self.users.values():
-            for user in users:
-                user.enable = False
-        del self.users[username]
+        
+        users_identitites_to_remove = self.users.get(username, [])
+        for user_identity in users_identitites_to_remove:
+            current.adapter.remove(user_identity)
+        
 
     def verifyUser(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> bool:
         """Check if the user belongs to this service.
@@ -98,5 +97,5 @@ class Authentication(IceDrive.Authentication):
         adapter = current.adapter if current else None
         if adapter is None:
             return False
-        user_object = adapter.find(user.ice_getIdentity())
+        user_object = current.adapter.find(user.ice_getIdentity())
         return user_object is not None
