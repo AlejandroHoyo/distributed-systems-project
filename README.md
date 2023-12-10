@@ -1,13 +1,32 @@
-# IceDrive Authentication service template
+# IceDrive Authentication service 
+Repositoriy URL for the authetication service: https://github.com/AlejandroHoyo/distributed-systems-project.git
 
-This repository contains the project template for the Authentication service proposed as laboratory work for the students
-of Distributed Systems in the course 2023-2024.
+## How to use it
+Firstly, it is necessary to clone the repository and change it to the corresponding directory
+```
+$ git clone https://github.com/AlejandroHoyo/distributed-systems-project.git
+$ cd distributed-systems-project
+```
+Secondly, it is required to create a virtual environment and activate it
+```
+$ python3 -m venv .venv
+$ source .venv/bin/activate
 
-## Updating `pyproject.toml`
+```
+Then, it required to install all the dependencies from the `pyproject.toml` in the virtual environment. In order to do this it is required the following command
 
-One of the first things that you need to setup when you clone this branch is to take a look into
-`pyproject.toml` file and update the needed values:
+```
+$ pip install .
+```
+If it is necessay to edit the code after the package installitation but without having to reinstall it again to test changes, the following commands may be required
 
-- Project authors
-- Project dependencies
-- Projects URL humepage
+```
+$ python3 -m pip install --upgrade pip
+$ python3 -m pip install -e .
+```
+
+Finally, you can run the service using the following command
+
+```
+./run_authentication_server
+

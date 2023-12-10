@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+icedrive-authentication --Ice.Config=config/authentication.config
+
