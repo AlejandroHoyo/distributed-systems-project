@@ -1,3 +1,4 @@
+
 #!/usr/bin/ env python3
 
 """Module for servants implementations."""
@@ -31,14 +32,26 @@ class User(IceDrive.User):
         
         self.creation_timestamp = time.monotonic()
 
+# class Sirviente(Clase.Slice):
+
+#     def __init__(self, instancia_descubridora_de_servicios):
+#         self.servicios = instancia_descubridora_de_servicios
+
+#     def metodoSirviente(self, , current=None):
+#         dir_proxy = self.servicios.obtenerProxyDirectorio()
+        
 
 class Authentication(IceDrive.Authentication):
     """Implementation of an IceDrive.Authentication interface."""
 
-    def __init__(self, db_file: str) -> None:
+    def __init__(self, db_file: str, query_publisher) -> None:
         self.query_executor = QueryExecutor(db_file)
+        self.query_publisher = query_publisher 
         self.query_executor.create_db_not_exists()
         self.users = {}
+        
+    def prepare_amd_response_callback(self, current: Ice.Current): 
+        pass
 
     def login(
         self, username: str, password: str, current: Ice.Current = None
@@ -49,6 +62,8 @@ class Authentication(IceDrive.Authentication):
         if not success:
             raise IceDrive.Unauthorized(username)
         
+       # authenticator_prx = self.authentication_services.get_authentication_service()
+
         user_obj = User(username)
         user_prx = IceDrive.UserPrx.uncheckedCast(current.adapter.addWithUUID(user_obj))
 
@@ -58,8 +73,7 @@ class Authentication(IceDrive.Authentication):
             self.users[username].append(user_identity)
         else: 
             self.users[username] = [user_identity]
-
-        #print("id", ",".join([str(id(user)) for user in self.users[username]]))
+            
         return user_prx
 
     def newUser(
@@ -96,3 +110,9 @@ class Authentication(IceDrive.Authentication):
         """
         user_object = current.adapter.find(user.ice_getIdentity())
         return user_object is not None
+
+    def existsUser(self, user: str): 
+        success = self.query_executor.user_exists(user)
+        return success
+
+

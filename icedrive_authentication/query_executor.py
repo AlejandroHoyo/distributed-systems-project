@@ -1,8 +1,5 @@
 import sqlite3
-import logging
 import contextlib
-
-logger = logging.getLogger()
 
 class QueryExecutor:
 
@@ -28,7 +25,7 @@ class QueryExecutor:
             return True
         except sqlite3.IntegrityError:
             print("The username already exists. Please enter a different username.")    
-            return True
+            return False
         
     def remove_user(self, username: str, password: str) -> bool:
         with contextlib.closing(sqlite3.connect(self.filename)) as connection:
@@ -45,10 +42,17 @@ class QueryExecutor:
                 print("Username not found.")
                 return False
 
-    def login(self, username:str, password:str) -> bool:
+    def login(self, username: str, password: str) -> bool:
         with contextlib.closing(sqlite3.connect(self.filename)) as connection:
             result = connection.execute(
                 'SELECT * FROM users WHERE username = ? AND password = ?', 
                 (username, password)
+            )
+            return result.fetchone() is not None
+        
+    def user_exists(self, username: str) -> bool: 
+        with contextlib.closing(sqlite3.connect(self.filename)) as connection: 
+            result = connection.execute(
+                 'SELECT * FROM users WHERE username = ?', (username)
             )
             return result.fetchone() is not None

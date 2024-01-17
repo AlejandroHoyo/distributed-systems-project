@@ -40,7 +40,7 @@
   // Authentication queries
   interface AuthenticationQueryResponse {
     void loginResponse(User* user);
-    void userExists();
+    void userExists(string username);
     void userRemoved();
     void verifyUserResponse(bool result);
   };
@@ -113,7 +113,7 @@
   // *** Services discovery *** //
   interface Discovery {
     void announceAuthentication(Authentication* prx);
-    void announceDirectoryServicey(DirectoryService* prx);
+    void announceDirectoryService(DirectoryService* prx);
     void announceBlobService(BlobService* prx);
   };
 }
