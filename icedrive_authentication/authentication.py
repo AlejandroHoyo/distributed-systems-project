@@ -6,7 +6,8 @@ import time
 import Ice
 import IceDrive
 
-from .query_executor import QueryExecutor 
+from .query_executor import QueryExecutor
+from .delayed_response import AuthenticationQueryResponse 
 
 TWO_MINUTES = 2 * 60
 
@@ -51,7 +52,10 @@ class Authentication(IceDrive.Authentication):
         self.users = {}
         
     def prepare_amd_response_callback(self, current: Ice.Current): 
-        pass
+        future = Ice.Future()
+        response = AuthenticationQueryResponse(future)
+        proxy = current.adapter.addWithUUID(response)
+        query_response_proxy = IceDrive.AuthenticationQueryResponsePrx.uncheckedCast(proxy)
 
     def login(
         self, username: str, password: str, current: Ice.Current = None
@@ -111,7 +115,8 @@ class Authentication(IceDrive.Authentication):
         user_object = current.adapter.find(user.ice_getIdentity())
         return user_object is not None
 
-    def existsUser(self, user: str): 
+    def existsUser(self, user: str):
+        """User exists in the database""" 
         success = self.query_executor.user_exists(user)
         return success
 

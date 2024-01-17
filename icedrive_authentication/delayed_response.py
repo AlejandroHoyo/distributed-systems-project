@@ -7,9 +7,9 @@ import IceDrive
 class AuthenticationQueryResponse(IceDrive.AuthenticationQueryResponse):
     """Query response receiver."""
 
-    def __init__(self, future: Ice.Future) -> None: 
+    def __init__(self, response: Ice.Future) -> None: 
         """Initialize query response handler"""
-        self.future_callback = future
+        self.future_callback = response
 
     def loginResponse(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> None:
         """Receive an User when other service instance knows about it and credentials are correct."""
@@ -23,19 +23,17 @@ class AuthenticationQueryResponse(IceDrive.AuthenticationQueryResponse):
 
     def userRemoved(self, current: Ice.Current = None) -> None:
         """Receive an invocation when other service instance knows the user and removed it."""
-        
 
     def verifyUserResponse(self, result: bool, current: Ice.Current = None) -> None:
         """Receive a boolean when other service instance is owner of the `user`."""
         self.future_callback.set_result(result)
         current.adapter.remove(current.id)
 
-
 class AuthenticationQuery(IceDrive.AuthenticationQuery):
     """Query receiver."""
 
-    # def __init__(self, authentication):
-    #     self.authentication = authentication
+    def __init__(self, authentication):
+        self.authentication = authentication
 
     def login(self, username: str, password: str, response: IceDrive.AuthenticationQueryResponsePrx, current: Ice.Current = None) -> None:
         """Receive a query about an user login."""

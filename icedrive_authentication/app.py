@@ -12,7 +12,6 @@ from .authentication import Authentication
 from .delayed_response import AuthenticationQuery
 from .discovery import Discovery, Announcer
 
-ANNOUNCEMENT_FREQUENCY = 5
 
 class AuthenticationApp(Ice.Application):
     """Implementation of the Ice.Application for the Authentication service."""
@@ -42,14 +41,13 @@ class AuthenticationApp(Ice.Application):
 
         # Get authenticator and query_receiver proxies
         authenticator = Authentication("users.db", authentication_query_publisher)
-        query_receiver = AuthenticationQuery()
+        query_receiver = AuthenticationQuery(authenticator)
         authenticator_proxy = IceDrive.AuthenticationPrx.uncheckedCast(adapter.addWithUUID(authenticator))
         query_receiver_proxy = IceDrive.AuthenticationQueryPrx.uncheckedCast(adapter.addWithUUID(query_receiver))
 
         # Subscribe query_receiver topic
         self.subscribe_to(topic_authentication_query, query_receiver_proxy )
         logging.info("Authenticaction service available at: %s", authenticator_proxy)
-
 
         # Start the announcer
         announcer = Announcer(authenticator_proxy, announcer_publisher)
@@ -60,7 +58,7 @@ class AuthenticationApp(Ice.Application):
         self.communicator().waitForShutdown()
 
         announcer.stop()
-        
+
         topic_discovery.unsubscribe(discovery_proxy)
 
         return 0
