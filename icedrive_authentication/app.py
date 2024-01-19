@@ -1,5 +1,7 @@
 """Authentication service application."""
 
+from __future__ import annotations
+
 import logging
 import sys
 from typing import List
@@ -7,11 +9,12 @@ import IceStorm
 
 import Ice
 import IceDrive
+import IcePy
 
 from .authentication import Authentication
 from .delayed_response import AuthenticationQuery
 from .discovery import Discovery, Announcer
-
+from .query_executor import QueryExecutor
 
 class AuthenticationApp(Ice.Application):
     """Implementation of the Ice.Application for the Authentication service."""
@@ -40,15 +43,17 @@ class AuthenticationApp(Ice.Application):
         announcer_publisher = self.get_publisher(topic_discovery, IceDrive.Discovery)
 
         # Get authenticator and query_receiver proxies
-        authenticator = Authentication("users.db", authentication_query_publisher)
-        query_receiver = AuthenticationQuery(authenticator)
+        query_executor = QueryExecutor("users.db")
+        authenticator = Authentication(query_executor, authentication_query_publisher)
+        query_receiver = AuthenticationQuery(query_executor)
         authenticator_proxy = IceDrive.AuthenticationPrx.uncheckedCast(adapter.addWithUUID(authenticator))
         query_receiver_proxy = IceDrive.AuthenticationQueryPrx.uncheckedCast(adapter.addWithUUID(query_receiver))
+       
 
         # Subscribe query_receiver topic
-        self.subscribe_to(topic_authentication_query, query_receiver_proxy )
-        logging.info("Authenticaction service available at: %s", authenticator_proxy)
-
+        self.subscribe_to(topic_authentication_query, query_receiver_proxy)
+        logging.info("Authentication service available at: %s", authenticator_proxy)
+    
         # Start the announcer
         announcer = Announcer(authenticator_proxy, announcer_publisher)
         announcer.start()
@@ -63,7 +68,7 @@ class AuthenticationApp(Ice.Application):
 
         return 0
         
-    def get_topic(self, topic_name):
+    def get_topic(self, topic_name: str) -> IceStorm.TopicPrx:
         """ Retrieves the IceStorm topic for the discovery if it exists; 
         if not found, creates it """
 
@@ -74,24 +79,19 @@ class AuthenticationApp(Ice.Application):
             topic = topic_mgr_proxy.create(topic_name)
         except IceStorm.TopicExists:
             topic = topic_mgr_proxy.retrieve(topic_name)
-      
         return topic
     
-    def get_publisher(self, topic, klass):
+    def get_publisher(self, topic: IceStorm.TopicPrx, klass: str) -> IcePy.ObjectPrx:
         """ Returns a publisher for the given topic of type 'klass' """
         publisher = topic.getPublisher()
         publisher = getattr(
             IceDrive, f"{klass.__name__}Prx").uncheckedCast(publisher)
-
         if not publisher:
             raise RuntimeError("Invalid publisher proxy")
-
         return publisher
-    
 
-    def subscribe_to(self, topic, proxy):
+    def subscribe_to(self, topic: IceStorm.TopicPrx, proxy: IcePy.ObjectPrx) -> None:
         """ Subscribe 'proxy' to the given topic."""
-
         topic.subscribeAndGetPublisher({}, proxy)
 
 def main():

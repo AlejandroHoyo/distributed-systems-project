@@ -50,9 +50,10 @@ class QueryExecutor:
             )
             return result.fetchone() is not None
         
-    def user_exists(self, username: str) -> bool: 
-        with contextlib.closing(sqlite3.connect(self.filename)) as connection: 
+    def user_exists(self, username: str) -> bool:
+        with contextlib.closing(sqlite3.connect(self.filename)) as connection:
             result = connection.execute(
-                 'SELECT * FROM users WHERE username = ?', (username)
+                'SELECT * FROM users WHERE username = ?', 
+                (username,)
             )
             return result.fetchone() is not None
