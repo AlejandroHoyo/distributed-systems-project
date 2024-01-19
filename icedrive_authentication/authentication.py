@@ -60,7 +60,6 @@ class Authentication(IceDrive.Authentication):
         
         success = self.query_executor.login(username, password)
         if not success:
-            query_receiver = AuthenticationQuery(self.query_executor)
             response = Response.from_adapter(current.adapter)
             self.query_publisher.login(username, password, response.query_prx)
             response.delete_from_adapter_after(current.adapter, WAIT_TIME, IceDrive.Unauthorized(username))
