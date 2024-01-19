@@ -28,5 +28,6 @@ $ python3 -m pip install -e .
 Finally, you can run the service using the following command
 
 ```
+./run_icestorm
 ./run_authentication_server
 
