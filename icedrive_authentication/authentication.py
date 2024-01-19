@@ -1,4 +1,3 @@
-
 #!/usr/bin/ env python3
 
 """Module for servants implementations."""
@@ -9,12 +8,10 @@ import IceDrive
 import threading
 
 from .delayed_response import AuthenticationQueryResponse 
-from .delayed_response import AuthenticationQuery
 from .user import User
 
 if TYPE_CHECKING:
     from .query_executor import QueryExecutor
-
 
 
 WAIT_TIME = 5

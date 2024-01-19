@@ -25,10 +25,10 @@ $ python3 -m pip install --upgrade pip
 $ python3 -m pip install -e .
 ```
 
-Finally, you can run the service using the following command
+Finally, you can run the service using the next commands in the following order
 
 ```
 ./run_icestorm
 ./run_authentication_server
 
-"Furthermore, you can verify and explore the accurate functionality of this service by establishing a separate authentication instance with its own persistence, allowing both instances to collaborate seamlessly through deferred resolution."
+Furthermore, you can verify and explore the accurate functionality of this service by establishing a separate authentication instance with its own persistence, allowing both instances to collaborate seamlessly through deferred resolution.
