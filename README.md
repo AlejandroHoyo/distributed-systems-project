@@ -31,3 +31,4 @@ Finally, you can run the service using the following command
 ./run_icestorm
 ./run_authentication_server
 
+"Furthermore, you can verify and explore the accurate functionality of this service by establishing a separate authentication instance with its own persistence, allowing both instances to collaborate seamlessly through deferred resolution."

@@ -9,6 +9,7 @@ import IceDrive
 import threading
 
 from .delayed_response import AuthenticationQueryResponse 
+from .delayed_response import AuthenticationQuery
 from .user import User
 
 if TYPE_CHECKING:
@@ -46,7 +47,7 @@ class Response:
 class Authentication(IceDrive.Authentication):
     """Implementation of an IceDrive.Authentication interface."""
 
-    def __init__(self, query_executor: QueryExecutor, query_publisher) -> None:
+    def __init__(self, query_executor: QueryExecutor, query_publisher: IceDrive.AuthenticationQueryPrx) -> None:
         self.query_executor = query_executor
         self.query_publisher = query_publisher 
         self.query_executor.create_db_not_exists()
@@ -59,6 +60,7 @@ class Authentication(IceDrive.Authentication):
         
         success = self.query_executor.login(username, password)
         if not success:
+            query_receiver = AuthenticationQuery(self.query_executor)
             response = Response.from_adapter(current.adapter)
             self.query_publisher.login(username, password, response.query_prx)
             response.delete_from_adapter_after(current.adapter, WAIT_TIME, IceDrive.Unauthorized(username))

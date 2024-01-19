@@ -11,6 +11,8 @@ ANNOUNCE_FREQUENCY = 5
 
 
 class Announcer:
+    """Announce my authentication servant each 5 seconds"""
+
     def __init__(self, proxy: IceDrive.AuthenticationPrx, announcer_publisher: IceDrive.DiscoveryPrx) -> None:
         self.proxy = proxy
         self.announcer_publisher = announcer_publisher

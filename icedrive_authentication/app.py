@@ -26,19 +26,19 @@ class AuthenticationApp(Ice.Application):
 
         # Get discovery proxy
         discovery_servant = Discovery()
-        discovery_proxy = adapter.addWithUUID(discovery_servant)
+        discovery_proxy = IceDrive.DiscoveryPrx.uncheckedCast(adapter.addWithUUID(discovery_servant))
 
         # Get topic for discovery
         properties = self.communicator().getProperties()
         topic_discovery_name = properties.getProperty("DiscoveryTopic")
         topic_discovery = self.get_topic(topic_discovery_name)
 
-        # Get topic for query authentication
+        # Get topic and publisher for query authentication
         topic_authentication_query_name = properties.getProperty("AuthenticationQueryTopic")
         topic_authentication_query = self.get_topic(topic_authentication_query_name)
         authentication_query_publisher = self.get_publisher(topic_authentication_query, IceDrive.AuthenticationQuery)
 
-        # Subscribe discovery topic
+        # Subscribe discovery topic and get its publisher
         self.subscribe_to(topic_discovery, discovery_proxy)
         announcer_publisher = self.get_publisher(topic_discovery, IceDrive.Discovery)
 
@@ -62,6 +62,7 @@ class AuthenticationApp(Ice.Application):
         self.shutdownOnInterrupt()
         self.communicator().waitForShutdown()
 
+        # Stop announcer    
         announcer.stop()
 
         topic_discovery.unsubscribe(discovery_proxy)
